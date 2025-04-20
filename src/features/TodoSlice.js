@@ -85,7 +85,7 @@ export const todoSlice = createSlice({
       })
       .addCase(showTodo.fulfilled, (state, action) => {
         state.loading = false;
-        state.todos = action.payload; // ✅ fixed here
+        state.todos = action.payload;
       })
       .addCase(showTodo.rejected, (state, action) => {
         state.loading = false;
@@ -96,7 +96,8 @@ export const todoSlice = createSlice({
       })
       .addCase(deleteTodo.fulfilled, (state, action) => {
         state.loading = false;
-        state.todos = state.todos.filter((todo) => todo.id !== action.payload.id); // ✅ fixed here
+        state.todos = state.todos.filter((todo) => todo.id !== action.payload.id); 
+        
       })
       .addCase(deleteTodo.rejected, (state, action) => {
         state.loading = false;
@@ -107,7 +108,8 @@ export const todoSlice = createSlice({
       })
       .addCase(updateTodo.fulfilled, (state, action) => {
         state.loading = false;
-        const index = state.todos.findIndex((todo) => todo.id === action.payload.id); // ✅ fixed here
+        const index = state.todos.findIndex((todo) => todo.id === action.payload.id); 
+        
         if (index !== -1) {
           state.todos[index] = action.payload;
         }
