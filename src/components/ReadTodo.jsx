@@ -10,26 +10,29 @@ const ReadTodo = () => {
 
   const [id, setId] = useState();
   const [showPopup, setShowPopup] = useState(false);
+
   const { todos, loading } = useSelector((state) => state.todo);
 
-  // 🧩 Pagination state
+  // 🧩 Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const todosPerPage = 5;
-
-  const indexOfLastTodo = currentPage * todosPerPage;
-  const indexOfFirstTodo = indexOfLastTodo - todosPerPage;
-  const currentTodos = todos.slice(indexOfFirstTodo, indexOfLastTodo);
-
-  const totalPages = Math.ceil(todos.length / todosPerPage);
 
   useEffect(() => {
     dispatch(showTodo());
   }, [dispatch]);
 
+  // 📦 Pagination logic
+  const indexOfLastTodo = currentPage * todosPerPage;
+  const indexOfFirstTodo = indexOfLastTodo - todosPerPage;
+  const currentTodos = todos.slice(indexOfFirstTodo, indexOfLastTodo);
+  const totalPages = Math.ceil(todos.length / todosPerPage);
+
+  // 🔁 Reset to first page on todos change
   useEffect(() => {
     setCurrentPage(1);
   }, [todos]);
 
+  // 💬 Loader
   if (loading) {
     return <h2 className="text-white text-xl animate-pulse">Loading...</h2>;
   }
@@ -58,6 +61,7 @@ const ReadTodo = () => {
               className="bg-white/80 text-black p-4 mb-4 rounded-lg shadow-lg transition hover:scale-[1.02] cursor-pointer flex justify-between items-center"
             >
               <span className="font-medium">{todo.text}</span>
+
               <div className="flex gap-3">
                 <Link
                   to={`/edit/${todo.id}`}
@@ -69,7 +73,10 @@ const ReadTodo = () => {
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    dispatch(deleteTodo(todo.id));
+                    const confirmed = window.confirm("Are you sure you want to delete this todo?");
+                    if (confirmed) {
+                      dispatch(deleteTodo(todo.id));
+                    }
                   }}
                   className="bg-red-500 hover:bg-red-600 text-white font-semibold px-3 py-1 rounded-md transition"
                 >
@@ -82,39 +89,37 @@ const ReadTodo = () => {
 
         {/* 🧭 Pagination Controls */}
         {todos.length > todosPerPage && (
-          <div className="flex flex-wrap justify-center items-center gap-2 mt-6">
+          <div className="flex justify-center items-center gap-3 mt-6 flex-wrap">
             <button
               onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
-              className="px-3 py-1 bg-blue-500 text-white rounded disabled:opacity-50"
+              className="px-4 py-2 bg-blue-500 text-white rounded disabled:opacity-50"
             >
               Prev
             </button>
 
-            {/* 🎯 Page numbers */}
-            {[...Array(totalPages).keys()].map((num) => {
-              const pageNum = num + 1;
-              return (
-                <button
-                  key={pageNum}
-                  onClick={() => setCurrentPage(pageNum)}
-                  className={`px-3 py-1 rounded font-semibold transition ${
-                    currentPage === pageNum
-                      ? "bg-yellow-500 text-black"
-                      : "bg-white text-black hover:bg-gray-200"
-                  }`}
-                >
-                  {pageNum}
-                </button>
-              );
-            })}
+            {[...Array(totalPages)].map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentPage(index + 1)}
+                className={`px-4 py-2 rounded ${
+                  currentPage === index + 1
+                    ? "bg-yellow-500 text-black font-bold"
+                    : "bg-gray-300 hover:bg-gray-400"
+                }`}
+              >
+                {index + 1}
+              </button>
+            ))}
 
             <button
               onClick={() =>
-                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                setCurrentPage((prev) =>
+                  prev < totalPages ? prev + 1 : prev
+                )
               }
               disabled={currentPage === totalPages}
-              className="px-3 py-1 bg-blue-500 text-white rounded disabled:opacity-50"
+              className="px-4 py-2 bg-blue-500 text-white rounded disabled:opacity-50"
             >
               Next
             </button>
